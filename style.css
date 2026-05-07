@@ -1,0 +1,381 @@
+:root {
+  --bg-gradient: linear-gradient(135deg, #f7f4ff, #e8f4ff 55%, #f4fffb);
+  --card-bg: rgba(255, 255, 255, 0.88);
+  --text-main: #273041;
+  --text-sub: #657188;
+  --primary: #7da8ff;
+  --primary-strong: #5d8ff9;
+  --success: #6ecf95;
+  --danger: #ff8f9d;
+  --border: rgba(102, 125, 164, 0.16);
+  --shadow: 0 10px 25px rgba(73, 96, 138, 0.14);
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+}
+
+body.dark-mode {
+  --bg-gradient: linear-gradient(140deg, #1e2330, #1a293d 55%, #1e2c2f);
+  --card-bg: rgba(31, 40, 57, 0.86);
+  --text-main: #f0f4ff;
+  --text-sub: #b8c4e0;
+  --primary: #8baeff;
+  --primary-strong: #a5c0ff;
+  --success: #78d6a4;
+  --danger: #ff95a2;
+  --border: rgba(201, 214, 246, 0.14);
+  --shadow: 0 12px 30px rgba(3, 8, 20, 0.45);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Pretendard", "Segoe UI", sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-main);
+}
+
+.app-shell {
+  width: min(760px, 92vw);
+  margin: 36px auto;
+  display: grid;
+  gap: 16px;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+}
+
+.app-header,
+.app-footer,
+.app-main {
+  padding: 18px 20px;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand-kicker {
+  margin: 0;
+  color: var(--text-sub);
+  font-size: 0.85rem;
+}
+
+h1 {
+  margin: 6px 0 0;
+  font-size: 1.45rem;
+}
+
+.icon-btn {
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: rgba(125, 168, 255, 0.2);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: transform 0.25s ease, background-color 0.2s ease;
+}
+
+.icon-btn:hover,
+.icon-btn:focus-visible {
+  transform: translateY(-2px) scale(1.03);
+  background: rgba(125, 168, 255, 0.33);
+}
+
+.top-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label {
+  margin: 0;
+  color: var(--text-sub);
+  font-size: 0.82rem;
+}
+
+.clock-value {
+  margin: 4px 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.loading-badge {
+  padding: 7px 11px;
+  border-radius: 999px;
+  font-size: 0.83rem;
+  color: var(--text-sub);
+  background: rgba(125, 168, 255, 0.18);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--primary-strong);
+  animation: pulse 1s ease infinite;
+}
+
+.hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.todo-form {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+}
+
+input[type="text"] {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 13px 14px;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--text-main);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.dark-mode input[type="text"] {
+  background: rgba(18, 28, 43, 0.65);
+}
+
+input[type="text"]:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(125, 168, 255, 0.18);
+}
+
+.primary-btn,
+.ghost-btn,
+.filter-btn {
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.primary-btn {
+  min-width: 92px;
+  background: var(--primary);
+  color: #fff;
+}
+
+.primary-btn:hover,
+.primary-btn:focus-visible {
+  background: var(--primary-strong);
+  transform: translateY(-1px);
+}
+
+.input-feedback {
+  min-height: 20px;
+  margin: 7px 2px 0;
+  font-size: 0.86rem;
+  color: var(--danger);
+}
+
+.toolbar {
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filters,
+.bulk-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-btn,
+.ghost-btn {
+  padding: 8px 12px;
+  background: rgba(125, 168, 255, 0.15);
+  color: var(--text-main);
+}
+
+.filter-btn.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.ghost-btn.danger {
+  background: rgba(255, 143, 157, 0.2);
+}
+
+.todo-list {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.todo-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.62);
+  animation: slideIn 0.25s ease;
+}
+
+body.dark-mode .todo-item {
+  background: rgba(18, 28, 43, 0.64);
+}
+
+.todo-item.dragging {
+  opacity: 0.5;
+  transform: scale(0.98);
+}
+
+.todo-checkbox {
+  width: 19px;
+  height: 19px;
+  accent-color: var(--success);
+  cursor: pointer;
+}
+
+.todo-text {
+  flex: 1;
+  word-break: break-word;
+}
+
+.todo-item.completed .todo-text {
+  text-decoration: line-through;
+  color: var(--text-sub);
+}
+
+.todo-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.todo-btn {
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: rgba(125, 168, 255, 0.15);
+  color: var(--text-main);
+}
+
+.todo-btn.delete {
+  background: rgba(255, 143, 157, 0.2);
+}
+
+.todo-btn:hover,
+.todo-btn:focus-visible,
+.ghost-btn:hover,
+.filter-btn:hover,
+.ghost-btn:focus-visible,
+.filter-btn:focus-visible {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
+.empty-state {
+  margin: 18px 4px 6px;
+  color: var(--text-sub);
+  text-align: center;
+}
+
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--text-sub);
+}
+
+.drag-hint {
+  margin: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    margin: 18px auto 28px;
+    width: 94vw;
+  }
+
+  .todo-form {
+    flex-direction: column;
+  }
+
+  .primary-btn {
+    min-height: 44px;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters,
+  .bulk-actions {
+    justify-content: space-between;
+  }
+
+  .app-footer {
+    flex-direction: column;
+  }
+}

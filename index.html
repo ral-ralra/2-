@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="사용자 친화적인 UI/UX를 제공하는 모던 TodoList 웹앱"
+    />
+    <meta name="theme-color" content="#8fbcff" />
+    <title>FocusFlow Todo</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%E2%9C%85%3C/text%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="./style.css" />
+    <script defer src="./script.js"></script>
+  </head>
+  <body>
+    <div class="app-shell" aria-live="polite">
+      <header class="app-header card">
+        <div class="brand-area">
+          <p class="brand-kicker">Daily Productivity</p>
+          <h1>FocusFlow Todo</h1>
+        </div>
+        <div class="header-actions">
+          <button id="themeToggleBtn" class="icon-btn" aria-label="다크모드 토글">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <main class="card app-main" aria-label="할 일 관리 영역">
+        <section class="top-info">
+          <div class="clock-wrap">
+            <p class="label">현재 시간</p>
+            <p id="currentDateTime" class="clock-value">--:--</p>
+          </div>
+          <div id="loadingBadge" class="loading-badge hidden" role="status" aria-label="저장중">
+            <span class="dot"></span>
+            저장중...
+          </div>
+        </section>
+
+        <section class="input-section" aria-label="할 일 입력 영역">
+          <form id="todoForm" class="todo-form" novalidate>
+            <label for="todoInput" class="sr-only">할 일 입력</label>
+            <input
+              id="todoInput"
+              type="text"
+              name="todo"
+              maxlength="120"
+              placeholder="새로운 할 일을 입력하세요"
+              aria-label="할 일 입력"
+              autocomplete="off"
+              required
+            />
+            <button type="submit" class="primary-btn" aria-label="할 일 추가">
+              <i class="fa-solid fa-plus"></i>
+              추가
+            </button>
+          </form>
+          <p id="inputFeedback" class="input-feedback" aria-live="assertive"></p>
+        </section>
+
+        <section class="toolbar" aria-label="필터 및 관리 도구">
+          <div class="filters" role="tablist" aria-label="할 일 필터">
+            <button class="filter-btn active" data-filter="all" aria-label="전체 보기">전체</button>
+            <button class="filter-btn" data-filter="active" aria-label="미완료 보기">미완료</button>
+            <button class="filter-btn" data-filter="completed" aria-label="완료 보기">완료</button>
+          </div>
+          <div class="bulk-actions">
+            <button id="clearCompletedBtn" class="ghost-btn" aria-label="완료 항목 삭제">
+              완료만 삭제
+            </button>
+            <button id="clearAllBtn" class="ghost-btn danger" aria-label="전체 항목 삭제">
+              전체 삭제
+            </button>
+          </div>
+        </section>
+
+        <section class="todo-section">
+          <ul id="todoList" class="todo-list" aria-label="할 일 목록"></ul>
+          <p id="emptyState" class="empty-state">할 일을 추가해 오늘을 시작해보세요.</p>
+        </section>
+      </main>
+
+      <footer class="card app-footer">
+        <p id="remainingCount">남은 할 일 0개</p>
+        <p class="drag-hint">
+          <i class="fa-solid fa-hand-pointer"></i>
+          드래그하여 순서를 바꿀 수 있어요
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
