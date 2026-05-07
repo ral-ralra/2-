@@ -64,6 +64,13 @@
               autocomplete="off"
               required
             />
+            <label for="todoDueInput" class="sr-only">완료 목표 날짜와 시간</label>
+            <input
+              id="todoDueInput"
+              type="datetime-local"
+              name="todoDue"
+              aria-label="완료 목표 날짜와 시간"
+            />
             <button type="submit" class="primary-btn" aria-label="할 일 추가">
               <i class="fa-solid fa-plus"></i>
               추가
@@ -76,8 +83,10 @@
           <div class="filters" role="tablist" aria-label="할 일 필터">
             <button class="filter-btn active" data-filter="all" aria-label="전체 보기">전체</button>
             <button class="filter-btn" data-filter="active" aria-label="미완료 보기">미완료</button>
+            <button class="filter-btn" data-filter="urgent" aria-label="마감 임박 보기">임박</button>
             <button class="filter-btn" data-filter="completed" aria-label="완료 보기">완료</button>
           </div>
+          <p id="urgentCount" class="urgent-count" aria-live="polite">임박 0개</p>
           <div class="bulk-actions">
             <button id="clearCompletedBtn" class="ghost-btn" aria-label="완료 항목 삭제">
               완료만 삭제

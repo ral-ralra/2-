@@ -21,10 +21,12 @@ const STORAGE_KEYS = {
 const elements = {
   todoForm: document.querySelector("#todoForm"),
   todoInput: document.querySelector("#todoInput"),
+  todoDueInput: document.querySelector("#todoDueInput"),
   inputFeedback: document.querySelector("#inputFeedback"),
   todoList: document.querySelector("#todoList"),
   emptyState: document.querySelector("#emptyState"),
   remainingCount: document.querySelector("#remainingCount"),
+  urgentCount: document.querySelector("#urgentCount"),
   filterButtons: document.querySelectorAll(".filter-btn"),
   clearAllBtn: document.querySelector("#clearAllBtn"),
   clearCompletedBtn: document.querySelector("#clearCompletedBtn"),
@@ -120,6 +122,7 @@ function handleAddTodo(event) {
   event.preventDefault();
 
   const newText = normalizeText(elements.todoInput.value);
+  const dueAt = parseDueDateValue(elements.todoDueInput.value);
   const isDuplicate = appState.todos.some(
     (todo) => normalizeText(todo.text).toLowerCase() === newText.toLowerCase()
   );
@@ -137,11 +140,13 @@ function handleAddTodo(event) {
   appState.todos.unshift({
     id: crypto.randomUUID(),
     text: newText,
+    dueAt,
     completed: false,
     createdAt: new Date().toISOString(),
   });
 
   elements.todoInput.value = "";
+  elements.todoDueInput.value = "";
   showInputFeedback("");
   saveStateToStorage();
   render();
@@ -218,8 +223,21 @@ function editTodo(todoId) {
     return;
   }
 
+  const defaultDueInput = currentTodo.dueAt ? toDateTimeLocalValue(currentTodo.dueAt) : "";
+  const editedDueInput = window.prompt(
+    "마감일시를 수정하세요. 비우면 마감일이 제거됩니다. (형식: 2026-05-10T18:30)",
+    defaultDueInput
+  );
+  if (editedDueInput === null) return;
+
+  const editedDueAt = parseDueDateValue(editedDueInput);
+  if (editedDueInput.trim() !== "" && !editedDueAt) {
+    showInputFeedback("마감일시 형식이 올바르지 않습니다. 예: 2026-05-10T18:30");
+    return;
+  }
+
   appState.todos = appState.todos.map((todo) =>
-    todo.id === todoId ? { ...todo, text: normalizedEditedText } : todo
+    todo.id === todoId ? { ...todo, text: normalizedEditedText, dueAt: editedDueAt } : todo
   );
 
   showInputFeedback("");
@@ -249,13 +267,18 @@ function handleClearCompleted() {
  * 현재 필터 상태에 따라 렌더링할 목록을 반환한다.
  */
 function getFilteredTodos() {
+  const sortedTodos = [...appState.todos].sort(compareTodosByPriority);
+
   if (appState.filter === "active") {
-    return appState.todos.filter((todo) => !todo.completed);
+    return sortedTodos.filter((todo) => !todo.completed);
+  }
+  if (appState.filter === "urgent") {
+    return sortedTodos.filter((todo) => isUrgentTodo(todo));
   }
   if (appState.filter === "completed") {
-    return appState.todos.filter((todo) => todo.completed);
+    return sortedTodos.filter((todo) => todo.completed);
   }
-  return appState.todos;
+  return sortedTodos;
 }
 
 /**
@@ -266,14 +289,17 @@ function renderTodoList() {
   elements.todoList.innerHTML = filteredTodos
     .map(
       (todo) => `
-      <li class="todo-item ${todo.completed ? "completed" : ""}" data-id="${todo.id}" draggable="true">
+      <li class="todo-item ${todo.completed ? "completed" : ""} ${getUrgentClassName(todo)}" data-id="${todo.id}" draggable="true">
         <input
           type="checkbox"
           class="todo-checkbox"
           aria-label="할 일 완료 체크"
           ${todo.completed ? "checked" : ""}
         />
-        <span class="todo-text">${escapeHtml(todo.text)}</span>
+        <div class="todo-main">
+          <span class="todo-text">${escapeHtml(todo.text)}</span>
+          ${renderDueMeta(todo)}
+        </div>
         <div class="todo-actions">
           <button class="todo-btn" data-action="edit" aria-label="할 일 수정">
             <i class="fa-solid fa-pen"></i>
@@ -298,6 +324,11 @@ function renderRemainingCount() {
   elements.remainingCount.textContent = `남은 할 일 ${remainingTodos}개`;
 }
 
+function renderUrgentCount() {
+  const urgentTodos = appState.todos.filter((todo) => isUrgentTodo(todo)).length;
+  elements.urgentCount.textContent = `임박 ${urgentTodos}개`;
+}
+
 /**
  * 필터 버튼의 활성 상태를 UI에 반영한다.
  */
@@ -310,6 +341,7 @@ function updateFilterButtons() {
 function render() {
   renderTodoList();
   renderRemainingCount();
+  renderUrgentCount();
   updateFilterButtons();
 }
 
@@ -396,6 +428,126 @@ function handleDragEnd(event) {
  */
 function normalizeText(text) {
   return text.replace(/\s+/g, " ").trim();
+}
+
+/**
+ * 마감일 입력값을 ISO 문자열로 변환한다.
+ * 값이 없거나 올바르지 않으면 null을 반환한다.
+ */
+function parseDueDateValue(value) {
+  if (!value) return null;
+  const parsedDate = new Date(value);
+  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate.toISOString();
+}
+
+function toDateTimeLocalValue(isoDateString) {
+  const date = new Date(isoDateString);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const offsetMs = date.getTimezoneOffset() * 60 * 1000;
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
+}
+
+/**
+ * 마감일이 지정된 할 일을 우선 정렬한다.
+ * 1) 미완료 + 마감일 있음 + 임박순
+ * 2) 미완료 + 마감일 없음
+ * 3) 완료 항목
+ */
+function compareTodosByPriority(a, b) {
+  const scoreA = getTodoPriorityScore(a);
+  const scoreB = getTodoPriorityScore(b);
+
+  if (scoreA !== scoreB) return scoreA - scoreB;
+
+  if (a.dueAt && b.dueAt) {
+    return new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime();
+  }
+
+  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+}
+
+function getTodoPriorityScore(todo) {
+  if (todo.completed) return 2;
+  if (todo.dueAt) return 0;
+  return 1;
+}
+
+function renderDueMeta(todo) {
+  if (!todo.dueAt) return "";
+
+  const dueDate = new Date(todo.dueAt);
+  if (Number.isNaN(dueDate.getTime())) return "";
+
+  const dueLabel = formatDateTime(dueDate);
+  const ddayText = getDdayText(dueDate);
+  const badgeClass = getDdayClassName(dueDate);
+
+  return `
+    <div class="due-meta">
+      <span class="dday-badge ${badgeClass}">
+        <i class="fa-regular fa-clock"></i>
+        ${ddayText}
+      </span>
+      마감: ${dueLabel}
+    </div>
+  `;
+}
+
+function formatDateTime(date) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "numeric",
+    day: "numeric",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function getDdayText(dueDate) {
+  const now = new Date();
+  const dayInMs = 24 * 60 * 60 * 1000;
+  const startNow = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startDue = new Date(
+    dueDate.getFullYear(),
+    dueDate.getMonth(),
+    dueDate.getDate()
+  ).getTime();
+  const dayDiff = Math.floor((startDue - startNow) / dayInMs);
+
+  if (dayDiff < 0) return `D+${Math.abs(dayDiff)}`;
+  if (dayDiff === 0) return "D-DAY";
+  return `D-${dayDiff}`;
+}
+
+function getDdayClassName(dueDate) {
+  const now = new Date();
+  const dayInMs = 24 * 60 * 60 * 1000;
+  const startNow = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startDue = new Date(
+    dueDate.getFullYear(),
+    dueDate.getMonth(),
+    dueDate.getDate()
+  ).getTime();
+  const dayDiff = Math.floor((startDue - startNow) / dayInMs);
+
+  if (dayDiff < 0) return "overdue";
+  if (dayDiff === 0) return "today";
+  return "";
+}
+
+function getUrgentClassName(todo) {
+  return isUrgentTodo(todo) ? "urgent" : "";
+}
+
+function isUrgentTodo(todo) {
+  if (todo.completed || !todo.dueAt) return false;
+
+  const dueMs = new Date(todo.dueAt).getTime();
+  if (Number.isNaN(dueMs)) return false;
+
+  const remainingMs = dueMs - Date.now();
+  return remainingMs > 0 && remainingMs <= 24 * 60 * 60 * 1000;
 }
 
 function showInputFeedback(message) {

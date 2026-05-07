@@ -155,11 +155,27 @@ input[type="text"] {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+input[type="datetime-local"] {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 10px;
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--text-main);
+  min-width: 210px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
 body.dark-mode input[type="text"] {
   background: rgba(18, 28, 43, 0.65);
 }
 
-input[type="text"]:focus {
+body.dark-mode input[type="datetime-local"] {
+  background: rgba(18, 28, 43, 0.65);
+}
+
+input[type="text"]:focus,
+input[type="datetime-local"]:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(125, 168, 255, 0.18);
 }
@@ -208,6 +224,21 @@ input[type="text"]:focus {
   gap: 8px;
 }
 
+.urgent-count {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #9a6300;
+  background: rgba(255, 208, 133, 0.28);
+  border-radius: 999px;
+  padding: 7px 12px;
+}
+
+body.dark-mode .urgent-count {
+  color: #ffdca7;
+  background: rgba(255, 208, 133, 0.2);
+}
+
 .filter-btn,
 .ghost-btn {
   padding: 8px 12px;
@@ -252,6 +283,11 @@ body.dark-mode .todo-item {
   transform: scale(0.98);
 }
 
+.todo-item.urgent {
+  border-color: rgba(255, 178, 76, 0.55);
+  box-shadow: 0 0 0 2px rgba(255, 178, 76, 0.18);
+}
+
 .todo-checkbox {
   width: 19px;
   height: 19px;
@@ -262,6 +298,38 @@ body.dark-mode .todo-item {
 .todo-text {
   flex: 1;
   word-break: break-word;
+}
+
+.todo-main {
+  flex: 1;
+  display: grid;
+  gap: 4px;
+}
+
+.due-meta {
+  font-size: 0.8rem;
+  color: var(--text-sub);
+}
+
+.dday-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 4px 9px;
+  background: rgba(125, 168, 255, 0.18);
+  color: var(--text-main);
+}
+
+.dday-badge.overdue {
+  background: rgba(255, 143, 157, 0.25);
+}
+
+.dday-badge.today {
+  background: rgba(255, 208, 133, 0.32);
 }
 
 .todo-item.completed .todo-text {
